@@ -1,9 +1,35 @@
+version: '3.8'
 services:
   postgres:
     image: 'postgres:latest'
     environment:
-      - 'POSTGRES_DB=taskdb'
-      - 'POSTGRES_PASSWORD=taskpw'
-      - 'POSTGRES_USER=taskuser'
+      - POSTGRES_DB=taskdb
+      - POSTGRES_PASSWORD=taskpw
+      - POSTGRES_USER=taskuser
     ports:
-      - '5432'
+      - '5432:5432'
+
+  backend:
+    image: taskmanager:latest
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/taskdb
+      - SPRING_DATASOURCE_USERNAME=taskuser
+      - SPRING_DATASOURCE_PASSWORD=taskpw
+    depends_on:
+      - postgres
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./task-manager-app
+      dockerfile: Dockerfile
+    ports:
+      - "5173:80"
+    environment:
+      - VITE_API_URL=http://backend:8080
+    depends_on:
+      - backend
+    restart: unless-stopped

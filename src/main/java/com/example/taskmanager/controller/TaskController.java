@@ -24,6 +24,7 @@ public class TaskController {
     public ResponseEntity<Task> create(@Valid @RequestBody Task task) {
         Task saved = repository.save(task);
         return ResponseEntity.status(201).body(saved);
+
     }
 
     @GetMapping
